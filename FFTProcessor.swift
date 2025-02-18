@@ -96,21 +96,45 @@ struct FFTProcessor {
 
         return filteredData
     }
-
+    
     private static func processFrequencyBands(_ magnitudes: [Float]) -> [String: Float] {
         let samplingRate: Float = 250.0
-        let frequencyResolution = samplingRate / Float(magnitudes.count * 2)
+        let frequencyResolution = samplingRate / Float(magnitudes.count * 2)  // Hz per FFT bin
 
         var bands: [String: Float] = ["Delta": 0, "Theta": 0, "Alpha": 0, "Beta": 0, "Gamma": 0]
+        var bandBinCounts: [String: Float] = ["Delta": 0, "Theta": 0, "Alpha": 0, "Beta": 0, "Gamma": 0]
 
+        // ✅ Sum the magnitudes into frequency bands while counting bins
         for (index, magnitude) in magnitudes.enumerated() {
             let frequency = Float(index) * frequencyResolution
 
-            if frequency >= 0.5 && frequency < 4 { bands["Delta"]! += magnitude }
-            else if frequency >= 4 && frequency < 8 { bands["Theta"]! += magnitude }
-            else if frequency >= 8 && frequency < 12 { bands["Alpha"]! += magnitude }
-            else if frequency >= 12 && frequency < 30 { bands["Beta"]! += magnitude }
-            else if frequency >= 30 && frequency < 100 { bands["Gamma"]! += magnitude }
+            if frequency >= 0.5 && frequency < 4 {
+                bands["Delta"]! += magnitude
+                bandBinCounts["Delta"]! += 1
+            }
+            else if frequency >= 4 && frequency < 8 {
+                bands["Theta"]! += magnitude
+                bandBinCounts["Theta"]! += 1
+            }
+            else if frequency >= 8 && frequency < 12 {
+                bands["Alpha"]! += magnitude
+                bandBinCounts["Alpha"]! += 1
+            }
+            else if frequency >= 12 && frequency < 30 {
+                bands["Beta"]! += magnitude
+                bandBinCounts["Beta"]! += 1
+            }
+            else if frequency >= 30 && frequency < 100 {
+                bands["Gamma"]! += magnitude
+                bandBinCounts["Gamma"]! += 1
+            }
+        }
+
+        // ✅ Normalize each band by the number of bins it contains
+        for key in bands.keys {
+            if bandBinCounts[key]! > 0 {
+                bands[key]! /= bandBinCounts[key]!
+            }
         }
 
         return bands

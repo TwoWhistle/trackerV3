@@ -164,10 +164,10 @@ class BLEManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriph
         print("📊 Processing EEG Value: \(eegValue)")
 
         eegDataBuffer.append(eegValue)
-        print("📈 EEG Buffer Size: \(eegDataBuffer.count)/64")
+        print("📈 EEG Buffer Size: \(eegDataBuffer.count)/256")
 
 
-        if eegDataBuffer.count >= 64 {
+        if eegDataBuffer.count >= 256 {
             print("⚡ Running FFT on EEG Data...")
             let newBands = FFTProcessor.performFFT(eegDataBuffer)
 
