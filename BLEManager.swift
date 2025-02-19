@@ -24,6 +24,7 @@ class BLEManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriph
     let eegCharUUID = CBUUID(string: "abcd5678-ab12-cd34-ef56-abcdef123456")
 
     private var eegDataBuffer: [Float] = []  // Stores raw EEG data for FFT
+    private var eegDataLog: [(Date, Float)] = [] // Stores raw EEG data with timestamps
 
     override init() {
         super.init()
@@ -149,6 +150,7 @@ class BLEManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriph
                         self.receivedEEG = stringValue
                     }
                     processEEGData(eegValue)
+                    self.saveEEGData(eegValue)
                     print("🧠 EEG Data Updated: \(stringValue)")
                 } else {
                     print("⚠️ Invalid EEG Data: \(stringValue)")
@@ -179,7 +181,32 @@ class BLEManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeriph
             eegDataBuffer.removeAll()
         }
     }
-
+    
+    
+    /// Stores EEG data with timestamp
+        private func saveEEGData(_ eegValue: Float) {
+            let timestamp = Date()
+            self.eegDataLog.append((timestamp, eegValue))
+            let entry = "\(timestamp),\(eegValue)\n"
+            let fileURL = FileManager.default.temporaryDirectory.appendingPathComponent("EEGDataLog.txt")
+            
+            if let handle = try? FileHandle(forWritingTo: fileURL) {
+                handle.seekToEndOfFile()
+                if let data = entry.data(using: .utf8) {
+                    handle.write(data)
+                }
+                handle.closeFile()
+            } else {
+                try? entry.write(to: fileURL, atomically: true, encoding: .utf8)
+            }
+        }
+        
+        /// Exports EEG data log
+        func exportEEGData() {
+            let fileURL = FileManager.default.temporaryDirectory.appendingPathComponent("EEGDataLog.txt")
+            let activityVC = UIActivityViewController(activityItems: [fileURL], applicationActivities: nil)
+            UIApplication.shared.windows.first?.rootViewController?.present(activityVC, animated: true)
+        }
 
 }
 

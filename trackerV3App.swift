@@ -33,10 +33,10 @@ struct trackerV3App: App {
     var body: some Scene {
         WindowGroup {
             TabView {
-                ContentView()
+                /*ContentView()
                     .tabItem {
                         Label("Tracker", systemImage: "list.bullet")
-                    }
+                    }*/
 
                 BLETerminalView(bleManager: bleManager)
                     .tabItem {
@@ -51,6 +51,10 @@ struct trackerV3App: App {
                 HeartRateView(bleManager: bleManager) // New Heart Rate Tab
                     .tabItem {
                         Label("Heart Rate", systemImage: "heart.fill")
+                    }
+                DataLoggingView(bleManager: bleManager)
+                    .tabItem {
+                        Label("Data Logging", systemImage: "square.and.pencil")
                     }
             }
         }
